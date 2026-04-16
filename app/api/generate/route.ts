@@ -43,49 +43,49 @@ interface OrthogonalResponse {
   results?: OrthogonalResult[];
 }
 
-/**
- * Generate multiple search query variants from a user prompt.
- * Following the Bazaar Search Guide: use 3-5 intent-rich query variants
- * (broad intent, user language, domain jargon, specific action verbs).
- */
-function generateQueryVariants(prompt: string): string[] {
-  const words = prompt.toLowerCase().split(/\s+/);
-  const queries = [prompt];
+/* ─── Step 1: Claude plans search queries ────────────────────────── */
 
-  // Add domain-expanded variants based on common themes
-  const expansions: Record<string, string[]> = {
-    vacation: ["travel booking flights hotels itinerary trip planning weather", "vacation destination accommodation transport"],
-    travel: ["travel booking flights hotels itinerary trip planning weather maps", "vacation destination accommodation transport"],
-    hire: ["recruiting talent search profiles resume linkedin candidates", "hiring recruitment developer engineer"],
-    recruit: ["recruiting talent search profiles resume linkedin candidates", "hiring recruitment developer engineer"],
-    developer: ["developer engineer coding github portfolio linkedin talent", "software engineering hiring recruiting"],
-    marketing: ["marketing ads creative content social media campaign copy", "advertising UGC video image generation"],
-    trade: ["trading token swap dex market data portfolio crypto price", "defi trading bot signals analytics"],
-    trading: ["trading token swap dex market data portfolio crypto price", "defi trading bot signals analytics"],
-    crypto: ["crypto token price market data trading defi analytics", "blockchain wallet portfolio swap"],
-    weather: ["weather forecast temperature climate conditions", "meteorological data real-time weather"],
-    email: ["email sending messaging notification communication", "mail outreach campaign automation"],
-    scrape: ["web scraping crawling data extraction parsing", "firecrawl browserbase content extraction"],
-    search: ["web search engine results data retrieval", "search API query information lookup"],
-    video: ["video generation creation editing media", "video production animation rendering"],
-    image: ["image generation AI creative visual", "image processing photo editing"],
-    news: ["news articles current events breaking", "news search sentiment analysis media"],
-    real_estate: ["real estate property listing housing market", "property search homes apartments rentals"],
-    food: ["food restaurant dining delivery recipe", "restaurant search menu ordering"],
-  };
+const PLANNER_PROMPT = `You are a search query planner for an API marketplace that has paid API endpoints (web search, data APIs, scraping tools, etc.).
 
-  for (const word of words) {
-    if (expansions[word]) {
-      queries.push(...expansions[word]);
-    }
+Given a user's need, generate search queries to find the data and tool APIs that are DIRECTLY relevant to fulfilling that need. Focus on the core information and actions required — not tangential nice-to-haves.
+
+For example, if the user says "plan me a vacation":
+- Core: web search, weather forecast, flight search, hotel search, maps, travel content scraping
+- NOT core: image generation, email sending, notifications (unless explicitly asked)
+
+Rules:
+- Generate 5-8 search queries, no more
+- Each query should be a phrase of 3-6 words
+- Only include queries for things the user actually needs to accomplish their goal
+- Do NOT add generic utilities (email, image gen, notifications) unless the user explicitly asks for them
+- Focus on data retrieval and research APIs
+
+Output ONLY a JSON array of query strings, nothing else.`;
+
+async function planSearchQueries(prompt: string): Promise<string[]> {
+  try {
+    const message = await anthropic.messages.create({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 1024,
+      system: PLANNER_PROMPT,
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    const text = message.content.find((b) => b.type === "text")?.text ?? "[]";
+    // Extract JSON array from response (handle potential markdown wrapping)
+    const match = text.match(/\[[\s\S]*\]/);
+    if (!match) return [prompt];
+
+    const queries: string[] = JSON.parse(match[0]);
+    console.log(`Planner generated ${queries.length} queries:`, queries);
+    return queries.length > 0 ? queries : [prompt];
+  } catch (err) {
+    console.error("Query planning failed, falling back to raw prompt:", err);
+    return [prompt, `${prompt} API service`];
   }
-
-  // Always add a broad version with extra context words
-  queries.push(`${prompt} API service data`);
-
-  // Deduplicate and limit to 5 queries
-  return [...new Set(queries)].slice(0, 5);
 }
+
+/* ─── Step 2: Search Bazaar & Orthogonal ─────────────────────────── */
 
 async function searchBazaarSingle(query: string): Promise<BazaarResource[]> {
   try {
@@ -99,9 +99,7 @@ async function searchBazaarSingle(query: string): Promise<BazaarResource[]> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
 
-    const res = await fetch(url.toString(), {
-      signal: controller.signal,
-    });
+    const res = await fetch(url.toString(), { signal: controller.signal });
     clearTimeout(timeout);
 
     if (!res.ok) {
@@ -112,19 +110,12 @@ async function searchBazaarSingle(query: string): Promise<BazaarResource[]> {
     const data: BazaarResponse = await res.json();
     return data.items ?? [];
   } catch (err) {
-    console.error("Bazaar search failed:", err);
+    console.error(`Bazaar search failed for "${query}":`, err);
     return [];
   }
 }
 
-/**
- * Multi-query Bazaar search: run multiple query variants in parallel,
- * merge results, and deduplicate by resource URL.
- */
-async function searchBazaar(prompt: string): Promise<BazaarResource[]> {
-  const queries = generateQueryVariants(prompt);
-  console.log(`Searching Bazaar with ${queries.length} query variants:`, queries);
-
+async function searchBazaarMulti(queries: string[]): Promise<BazaarResource[]> {
   const allResults = await Promise.all(queries.map(searchBazaarSingle));
   const merged = allResults.flat();
 
@@ -138,13 +129,13 @@ async function searchBazaar(prompt: string): Promise<BazaarResource[]> {
     }
   }
 
-  console.log(`Bazaar: ${merged.length} total results → ${unique.length} unique`);
+  console.log(
+    `Bazaar: ${queries.length} queries → ${merged.length} total → ${unique.length} unique`
+  );
   return unique;
 }
 
-async function searchOrthogonal(
-  query: string
-): Promise<OrthogonalResult[]> {
+async function searchOrthogonal(query: string): Promise<OrthogonalResult[]> {
   const apiKey = process.env.ORTHOGONAL_API_KEY;
   if (!apiKey) {
     console.warn("ORTHOGONAL_API_KEY not set, skipping Orthogonal search");
@@ -179,6 +170,8 @@ async function searchOrthogonal(
   }
 }
 
+/* ─── Step 3: Generate bundle ────────────────────────────────────── */
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -188,14 +181,23 @@ export async function POST(request: Request) {
       return Response.json({ error: "Prompt is required" }, { status: 400 });
     }
 
-    // Search Bazaar and Orthogonal in parallel
+    // Step 1: Claude plans the search queries
+    const queries = await planSearchQueries(prompt);
+
+    // Step 2: Search Bazaar (multi-query) and Orthogonal in parallel
     const [bazaarResults, orthogonalResults] = await Promise.all([
-      searchBazaar(prompt),
+      searchBazaarMulti(queries),
       searchOrthogonal(prompt),
     ]);
 
-    // Build the user message for Claude
+    console.log(
+      `Total results — Bazaar: ${bazaarResults.length}, Orthogonal: ${orthogonalResults.length}`
+    );
+
+    // Step 3: Claude curates the final bundle
     const userMessage = `Need: ${prompt}
+
+Search queries used: ${JSON.stringify(queries)}
 
 Bazaar results (${bazaarResults.length} unique endpoints found):
 ${JSON.stringify(bazaarResults, null, 2)}
@@ -203,9 +205,8 @@ ${JSON.stringify(bazaarResults, null, 2)}
 Orthogonal results (${orthogonalResults.length} found):
 ${JSON.stringify(orthogonalResults, null, 2)}`;
 
-    // Call Claude to generate the skill bundle
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 45000);
+    const timeout = setTimeout(() => controller.abort(), 55000);
 
     try {
       const message = await anthropic.messages.create(

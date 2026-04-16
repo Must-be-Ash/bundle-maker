@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BUNDLES, type Bundle } from "../lib/mock-bundles";
 import { BundleModalContent } from "./BundleModal";
 import { ModalShell } from "./ModalShell";
@@ -9,11 +9,50 @@ import { ModalShell } from "./ModalShell";
 
 export function TrendingBundles() {
   const [selectedBundle, setSelectedBundle] = useState<Bundle | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+
+    const updateScrollState = () => {
+      const maxScrollLeft = el.scrollWidth - el.clientWidth;
+      setCanScrollLeft(el.scrollLeft > 1);
+      setCanScrollRight(el.scrollLeft < maxScrollLeft - 1);
+    };
+
+    updateScrollState();
+    el.addEventListener("scroll", updateScrollState, { passive: true });
+    window.addEventListener("resize", updateScrollState);
+
+    return () => {
+      el.removeEventListener("scroll", updateScrollState);
+      window.removeEventListener("resize", updateScrollState);
+    };
+  }, []);
+
+  const maskImage =
+    canScrollLeft && canScrollRight
+      ? "linear-gradient(to right, transparent, black 2%, black 98%, transparent)"
+      : canScrollRight
+        ? "linear-gradient(to right, black 0%, black 98%, transparent)"
+        : canScrollLeft
+          ? "linear-gradient(to right, transparent, black 2%, black 100%)"
+          : "none";
 
   return (
     <div className="mb-4">
 
-      <div className="overflow-x-auto overflow-y-hidden scrollbar-hide [mask-image:linear-gradient(to_right,transparent,black_2%,black_96%,transparent)]">
+      <div
+        ref={scrollContainerRef}
+        className="overflow-x-auto overflow-y-hidden scrollbar-hide"
+        style={{
+          maskImage,
+          WebkitMaskImage: maskImage,
+        }}
+      >
         <div className="flex gap-2 pb-2 px-8 sm:px-4">
           {BUNDLES.map((bundle, i) => (
             <button
