@@ -62,7 +62,7 @@ export function TrendingBundles() {
             >
               {/* Large rank number */}
               <span
-                className="text-[120px] sm:text-[140px] font-bold leading-none select-none shrink-0 relative -mr-3 z-0"
+                className="text-[120px] sm:text-[140px] font-bold leading-none select-none shrink-0 relative -mr-3 z-0 w-[70px] sm:w-[80px] text-right"
                 style={{
                   WebkitTextStroke: "2px #333333",
                   color: "transparent",
@@ -73,11 +73,11 @@ export function TrendingBundles() {
               </span>
 
               {/* Card */}
-              <div className="relative z-10 flex-1 min-w-0 h-[200px] bg-[#1a1a1a] border border-[#333333] rounded-2xl p-5 mb-2 flex flex-col transition-all duration-200 group-hover:bg-[#555555] group-hover:border-[#555555] group-hover:shadow-none">
-                <h4 className="text-base font-semibold text-[#fafafa] truncate mb-1.5 text-left transition-colors duration-200">
+              <div className="relative z-10 flex-1 min-w-0 h-[230px] bg-[#1a1a1a] border border-[#333333] rounded-2xl p-5 mb-2 flex flex-col transition-all duration-200 group-hover:bg-[#555555] group-hover:border-[#555555] group-hover:shadow-none">
+                <h4 className="text-base font-semibold text-[#fafafa] line-clamp-2 mb-1.5 text-left transition-colors duration-200 min-h-[2.5rem] whitespace-pre-line">
                   {bundle.name}
                 </h4>
-                <p className="text-xs text-[#888888] group-hover:text-[#cccccc] line-clamp-2 leading-relaxed text-left flex-1 transition-colors duration-200">
+                <p className="text-xs text-[#888888] group-hover:text-[#cccccc] line-clamp-4 leading-relaxed text-left flex-1 transition-colors duration-200">
                   {bundle.description}
                 </p>
 

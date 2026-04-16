@@ -37,9 +37,9 @@ const logo = (name: string) => MONO_LOGOS[name] ?? "";
 export const BUNDLES: Bundle[] = [
   {
     id: "vacation-planner",
-    name: "Vacation Planner",
+    name: "Vacation\nPlanner",
     description:
-      "Research and plan a vacation with web search, Google Maps, weather, Reddit tips, and travel site scraping.",
+      "Search destinations, weather, maps, and Reddit tips to build a trip plan.",
     services: [
       { name: "Exa", description: "Web search and AI-powered answers", price: "$0.01 / call", logoUrl: logo("Exa") },
       { name: "Google Maps", description: "Attractions, restaurants, and place details", price: "$0.01 / call", logoUrl: logo("Google Maps") },
@@ -52,9 +52,9 @@ export const BUNDLES: Bundle[] = [
   },
   {
     id: "competitor-price-monitor",
-    name: "Competitor Price Monitor",
+    name: "Competitor Price\nMonitor",
     description:
-      "Scrape competitor pricing pages, extract structured data, detect changes, and send email alerts.",
+      "Track competitor prices and get alerts when they change.",
     services: [
       { name: "Firecrawl", description: "Scrape and extract structured pricing data", price: "$0.01 / call", logoUrl: logo("Firecrawl") },
       { name: "Exa", description: "Search for pricing announcements and changes", price: "$0.01 / call", logoUrl: logo("Exa") },
@@ -67,9 +67,9 @@ export const BUNDLES: Bundle[] = [
   },
   {
     id: "sec-filing-analyzer",
-    name: "SEC Filing Analyzer",
+    name: "SEC Filing\nAnalyzer",
     description:
-      "Automate SEC filing discovery, extraction, and financial analysis for any public company.",
+      "Find, scrape, and analyze SEC filings for any public company.",
     services: [
       { name: "Fundable", description: "Company search by name or ticker", price: "$0.01 / call", logoUrl: logo("Fundable") },
       { name: "Firecrawl", description: "Scrape SEC EDGAR filings and extract data", price: "$0.01 / call", logoUrl: logo("Firecrawl") },
@@ -82,9 +82,9 @@ export const BUNDLES: Bundle[] = [
   },
   {
     id: "crypto-trading-bot",
-    name: "Crypto Trading Bot",
+    name: "Crypto\nTrading Bot",
     description:
-      "Monitor crypto prices, analyze technical indicators, gauge social sentiment, and execute on-chain trades.",
+      "Price feeds, technicals, sentiment, and on-chain trade execution.",
     services: [
       { name: "Dome", description: "Real-time price feeds from Binance and Chainlink", price: "USDC / call", logoUrl: logo("Dome") },
       { name: "Yahoo Finance", description: "Technical indicators — RSI, MACD, Bollinger Bands", price: "$0.01 / call", logoUrl: logo("Yahoo Finance") },
@@ -98,9 +98,9 @@ export const BUNDLES: Bundle[] = [
   },
   {
     id: "youtube-to-podcast",
-    name: "YouTube to Podcast",
+    name: "YouTube\nto Podcast",
     description:
-      "Convert any YouTube video into a podcast by extracting transcript, generating a script, and producing audio.",
+      "Extract transcript, generate a script, and produce audio.",
     services: [
       { name: "ScrapeCreators", description: "Fetch YouTube video details and transcript", price: "$0.01 / call", logoUrl: logo("ScrapeCreators") },
       { name: "MiniMax", description: "AI script generation and text-to-speech", price: "$0.10 / call", logoUrl: logo("MiniMax") },
@@ -111,9 +111,9 @@ export const BUNDLES: Bundle[] = [
   },
   {
     id: "b2b-lead-qualifier",
-    name: "B2B Lead Qualifier",
+    name: "B2B Lead\nQualifier",
     description:
-      "Find, enrich, and qualify B2B sales leads using company databases, contact enrichment, LinkedIn intelligence, and web scraping.",
+      "Search companies, enrich contacts, and find decision-maker emails.",
     services: [
       { name: "Crustdata", description: "Company search, enrichment, and LinkedIn post monitoring", price: "$0.01 / call", logoUrl: logo("Crustdata") },
       { name: "Firecrawl", description: "Scrape company websites for tech stack signals", price: "$0.01 / call", logoUrl: logo("Firecrawl") },
@@ -126,9 +126,9 @@ export const BUNDLES: Bundle[] = [
   },
   {
     id: "brand-mention-monitor",
-    name: "Brand Mention Monitor",
+    name: "Brand Mention\nMonitor",
     description:
-      "Monitor your brand across Twitter, Instagram, TikTok, Facebook, Reddit, and news — then get an email digest.",
+      "Sweep social media and news for brand mentions, get email alerts.",
     services: [
       { name: "Elfa", description: "Twitter/X influential mention search", price: "$0.01 / call", logoUrl: logo("Elfa") },
       { name: "StableSocial", description: "Instagram, TikTok, Facebook, Reddit search", price: "$0.01 / call", logoUrl: logo("StableSocial") },
@@ -141,9 +141,9 @@ export const BUNDLES: Bundle[] = [
   },
   {
     id: "email-enrichment-agent",
-    name: "Email Enrichment Agent",
+    name: "Email\nEnrichment Agent",
     description:
-      "Enrich email addresses with person profiles, company data, and contact info using layered B2B data providers.",
+      "Verify emails and enrich with person and company data.",
     services: [
       { name: "Hunter", description: "Email deliverability verification", price: "$0.01 / call", logoUrl: logo("Hunter") },
       { name: "Minerva", description: "Email validation and identity resolution", price: "$0.01 / call", logoUrl: logo("Minerva") },
@@ -156,9 +156,9 @@ export const BUNDLES: Bundle[] = [
   },
   {
     id: "meeting-transcriber",
-    name: "Meeting Transcriber",
+    name: "Meeting\nTranscriber",
     description:
-      "Transcribe meeting recordings from YouTube, Twitter, TikTok, or Facebook and generate AI-powered summaries.",
+      "Transcribe video recordings and generate AI summaries.",
     services: [
       { name: "ScrapeCreators", description: "Multi-platform video transcript extraction", price: "$0.01 / call", logoUrl: logo("ScrapeCreators") },
       { name: "StableUpload", description: "File hosting for local recordings", price: "$0.02 / call", logoUrl: logo("StableUpload") },
