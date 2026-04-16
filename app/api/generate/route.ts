@@ -43,6 +43,29 @@ interface OrthogonalResponse {
   results?: OrthogonalResult[];
 }
 
+interface WellKnownEndpoint {
+  url: string;
+  origin: string;
+  description?: string;
+}
+
+interface WellKnownResponse {
+  version?: number;
+  resources?: string[];
+  description?: string;
+  instructions?: string;
+}
+
+/* ─── Known x402 origins for /.well-known/x402 discovery ─────────── */
+
+const KNOWN_X402_ORIGINS = [
+  "https://stableenrich.dev",
+  "https://stablesocial.dev",
+  "https://stablestudio.dev",
+  "https://stableupload.dev",
+  "https://stableemail.dev",
+];
+
 /* ─── Step 1: Claude plans search queries ────────────────────────── */
 
 const PLANNER_PROMPT = `You are a search query planner for an API marketplace that has paid API endpoints (web search, data APIs, scraping tools, etc.).
@@ -72,7 +95,6 @@ async function planSearchQueries(prompt: string): Promise<string[]> {
     });
 
     const text = message.content.find((b) => b.type === "text")?.text ?? "[]";
-    // Extract JSON array from response (handle potential markdown wrapping)
     const match = text.match(/\[[\s\S]*\]/);
     if (!match) return [prompt];
 
@@ -85,7 +107,7 @@ async function planSearchQueries(prompt: string): Promise<string[]> {
   }
 }
 
-/* ─── Step 2: Search Bazaar & Orthogonal ─────────────────────────── */
+/* ─── Step 2a: Search Bazaar ─────────────────────────────────────── */
 
 async function searchBazaarSingle(query: string): Promise<BazaarResource[]> {
   try {
@@ -119,7 +141,6 @@ async function searchBazaarMulti(queries: string[]): Promise<BazaarResource[]> {
   const allResults = await Promise.all(queries.map(searchBazaarSingle));
   const merged = allResults.flat();
 
-  // Deduplicate by resource URL
   const seen = new Set<string>();
   const unique: BazaarResource[] = [];
   for (const item of merged) {
@@ -134,6 +155,8 @@ async function searchBazaarMulti(queries: string[]): Promise<BazaarResource[]> {
   );
   return unique;
 }
+
+/* ─── Step 2b: Search Orthogonal ─────────────────────────────────── */
 
 async function searchOrthogonal(query: string): Promise<OrthogonalResult[]> {
   const apiKey = process.env.ORTHOGONAL_API_KEY;
@@ -170,6 +193,48 @@ async function searchOrthogonal(query: string): Promise<OrthogonalResult[]> {
   }
 }
 
+/* ─── Step 2c: Discover from /.well-known/x402 origins ───────────── */
+
+async function discoverFromOrigin(
+  origin: string
+): Promise<WellKnownEndpoint[]> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+
+    const res = await fetch(`${origin}/.well-known/x402`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
+    if (!res.ok) return [];
+
+    const data: WellKnownResponse = await res.json();
+    const resources = data.resources ?? [];
+    const description = data.description ?? "";
+
+    return resources.map((url) => ({
+      url,
+      origin,
+      description,
+    }));
+  } catch {
+    console.error(`Discovery failed for ${origin}`);
+    return [];
+  }
+}
+
+async function discoverWellKnownEndpoints(): Promise<WellKnownEndpoint[]> {
+  const allResults = await Promise.all(
+    KNOWN_X402_ORIGINS.map(discoverFromOrigin)
+  );
+  const endpoints = allResults.flat();
+  console.log(
+    `Well-known discovery: ${KNOWN_X402_ORIGINS.length} origins → ${endpoints.length} endpoints`
+  );
+  return endpoints;
+}
+
 /* ─── Step 3: Generate bundle ────────────────────────────────────── */
 
 export async function POST(request: Request) {
@@ -184,15 +249,25 @@ export async function POST(request: Request) {
     // Step 1: Claude plans the search queries
     const queries = await planSearchQueries(prompt);
 
-    // Step 2: Search Bazaar (multi-query) and Orthogonal in parallel
-    const [bazaarResults, orthogonalResults] = await Promise.all([
-      searchBazaarMulti(queries),
-      searchOrthogonal(prompt),
-    ]);
+    // Step 2: Search all three sources in parallel
+    const [bazaarResults, orthogonalResults, wellKnownEndpoints] =
+      await Promise.all([
+        searchBazaarMulti(queries),
+        searchOrthogonal(prompt),
+        discoverWellKnownEndpoints(),
+      ]);
 
     console.log(
-      `Total results — Bazaar: ${bazaarResults.length}, Orthogonal: ${orthogonalResults.length}`
+      `Total results — Bazaar: ${bazaarResults.length}, Orthogonal: ${orthogonalResults.length}, Well-known: ${wellKnownEndpoints.length}`
     );
+
+    // Group well-known endpoints by origin for cleaner presentation
+    const wellKnownByOrigin: Record<string, string[]> = {};
+    for (const ep of wellKnownEndpoints) {
+      const host = new URL(ep.origin).hostname;
+      if (!wellKnownByOrigin[host]) wellKnownByOrigin[host] = [];
+      wellKnownByOrigin[host].push(ep.url);
+    }
 
     // Step 3: Claude curates the final bundle
     const userMessage = `Need: ${prompt}
@@ -203,7 +278,11 @@ Bazaar results (${bazaarResults.length} unique endpoints found):
 ${JSON.stringify(bazaarResults, null, 2)}
 
 Orthogonal results (${orthogonalResults.length} found):
-${JSON.stringify(orthogonalResults, null, 2)}`;
+${JSON.stringify(orthogonalResults, null, 2)}
+
+Additional x402 endpoints discovered via /.well-known/x402 (${wellKnownEndpoints.length} total):
+These are pay-per-call x402 endpoints from known providers. Pick any that are relevant to the user's need.
+${JSON.stringify(wellKnownByOrigin, null, 2)}`;
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 55000);

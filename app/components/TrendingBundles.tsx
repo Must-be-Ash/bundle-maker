@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { BUNDLES, type Bundle } from "../lib/mock-bundles";
+import { BUNDLES, type Bundle } from "../lib/featured-bundles";
 import { BundleModalContent } from "./BundleModal";
 import { ModalShell } from "./ModalShell";
 
@@ -53,7 +53,7 @@ export function TrendingBundles() {
           WebkitMaskImage: maskImage,
         }}
       >
-        <div className="flex gap-2 pb-2 px-8 sm:px-4">
+        <div className="flex gap-2 pb-2 px-8 sm:px-4 pr-16 sm:pr-12">
           {BUNDLES.map((bundle, i) => (
             <button
               key={bundle.id}

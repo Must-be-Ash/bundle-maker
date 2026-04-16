@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Bundle } from "../lib/mock-bundles";
+import type { Bundle } from "../lib/featured-bundles";
 import { ModalShell } from "./ModalShell";
 
 function useCopyToast() {
