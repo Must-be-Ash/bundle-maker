@@ -1,7 +1,9 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { getSystemPrompt } from "@/app/lib/system-prompt";
 
-const anthropic = new Anthropic();
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_BUNDLE_API_KEY,
+});
 
 interface BazaarResource {
   resource: string;
@@ -127,7 +129,7 @@ ${JSON.stringify(orthogonalResults, null, 2)}`;
     try {
       const message = await anthropic.messages.create(
         {
-          model: "claude-sonnet-4-20250514",
+          model: "claude-sonnet-4-6",
           max_tokens: 4096,
           system: getSystemPrompt(),
           messages: [{ role: "user", content: userMessage }],
