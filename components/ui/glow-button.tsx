@@ -48,7 +48,7 @@ export function GlowButton({
   const inner = (
     <div
       className={cn(
-        "absolute inset-0 rounded-full bg-gradient-to-b -z-10",
+        "absolute inset-0 rounded-full bg-gradient-to-b -z-10 pointer-events-none",
         "shadow-[0_2px_8px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.1)]",
         v.gradient
       )}

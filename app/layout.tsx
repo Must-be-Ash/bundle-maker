@@ -9,9 +9,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://bundle-maker.vercel.app/"),
   title: "Bundle Maker — x402 Skill Creator",
   description:
     "Describe what you need and get a ready-to-use skill bundle of paid API endpoints, powered by x402",
+  alternates: {
+    canonical: "/",
+  },
   icons: {
     icon: [
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
@@ -25,7 +29,9 @@ export const metadata: Metadata = {
     title: "Bundle Maker — x402 Skill Creator",
     description:
       "Describe what you need and get a ready-to-use skill bundle of paid API endpoints, powered by x402",
-    images: [{ url: "/og.png", width: 1200, height: 630 }],
+    url: "/",
+    siteName: "Bundle Maker",
+    images: [{ url: "/og.png", width: 3022, height: 1644 }],
     type: "website",
   },
   twitter: {

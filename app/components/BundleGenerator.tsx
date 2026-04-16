@@ -93,7 +93,7 @@ export function BundleGenerator() {
       )}
 
       {output && (
-        <div className="relative w-full max-w-2xl">
+        <div className="relative w-full max-w-2xl text-left">
           {/* Copy button */}
           <button
             onClick={handleCopy}

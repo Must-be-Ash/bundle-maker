@@ -80,6 +80,16 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* ─── Coinbase Sans (bold only, for rank numbers) ────────────────── */
+
+@font-face {
+  font-family: "Coinbase Sans";
+  src: url("/fonts/Coinbase_Sans-Bold-web-1.32.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ─── Marquee ────────────────────────────────────────────────────── */
 
 @keyframes marquee {

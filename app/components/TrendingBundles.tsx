@@ -27,7 +27,7 @@ export function TrendingBundles() {
                 style={{
                   WebkitTextStroke: "2px #333333",
                   color: "transparent",
-                  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif",
+                  fontFamily: "'Coinbase Sans', system-ui, sans-serif",
                 }}
               >
                 {i + 1}
