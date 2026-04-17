@@ -19,6 +19,8 @@ interface BazaarResource {
     maxAmountRequired?: string;
   }>;
   lastUpdated?: string;
+  // /discovery/search returns description at the top level of each resource.
+  description?: string;
   metadata?: {
     description?: string;
     input?: Record<string, unknown>;
@@ -27,9 +29,13 @@ interface BazaarResource {
   };
 }
 
-interface BazaarResponse {
-  items?: BazaarResource[];
-  pagination?: { limit: number; offset: number; total: number };
+// /discovery/search response shape. Note this differs from /discovery/resources
+// (which is paginated browse and returns { items, pagination }). Search is
+// ranked top-K and returns { resources, partialResults } with NO pagination
+// and a server-side hard cap of 20.
+interface BazaarSearchResponse {
+  resources?: BazaarResource[];
+  partialResults?: boolean;
 }
 
 interface OrthogonalResult {
@@ -111,12 +117,16 @@ async function planSearchQueries(prompt: string): Promise<string[]> {
 
 async function searchBazaarSingle(query: string): Promise<BazaarResource[]> {
   try {
+    // /discovery/search is the semantic endpoint. /discovery/resources is a
+    // paginated browse and silently ignores the `query` and `network` params
+    // we need.
     const url = new URL(
-      "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources"
+      "https://api.cdp.coinbase.com/platform/v2/x402/discovery/search"
     );
     url.searchParams.set("query", query);
     url.searchParams.set("network", "eip155:8453");
-    url.searchParams.set("limit", "100");
+    // Server hard-caps at 20 anyway.
+    url.searchParams.set("limit", "20");
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
@@ -129,8 +139,8 @@ async function searchBazaarSingle(query: string): Promise<BazaarResource[]> {
       return [];
     }
 
-    const data: BazaarResponse = await res.json();
-    return data.items ?? [];
+    const data: BazaarSearchResponse = await res.json();
+    return data.resources ?? [];
   } catch (err) {
     console.error(`Bazaar search failed for "${query}":`, err);
     return [];
