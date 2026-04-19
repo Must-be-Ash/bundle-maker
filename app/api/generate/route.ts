@@ -318,10 +318,7 @@ ${JSON.stringify(wellKnownByOrigin, null, 2)}`;
       const textBlock = message.content.find((b) => b.type === "text");
       const markdown = textBlock?.text ?? "";
 
-      return new NextResponse(markdown, {
-        status: 200,
-        headers: { "Content-Type": "text/markdown; charset=utf-8" },
-      });
+      return NextResponse.json({ markdown });
     } catch (err) {
       clearTimeout(timeout);
       throw err;

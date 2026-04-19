@@ -33,7 +33,7 @@ const routes = {
     ],
     description:
       "Generate a curated bundle of x402 endpoints from a natural-language prompt.",
-    mimeType: "text/markdown",
+    mimeType: "application/json",
     extensions: {
       ...declareDiscoveryExtension({
         bodyType: "json",
@@ -49,11 +49,19 @@ const routes = {
           required: ["prompt"],
         },
         output: {
-          example:
-            "# Tokyo trip bundle\n\n- weather API\n- flight search\n- hotel search",
+          example: {
+            markdown:
+              "# Tokyo trip bundle\n\n- weather API\n- flight search\n- hotel search",
+          },
           schema: {
-            type: "string",
-            description: "Markdown bundle recommendation",
+            type: "object",
+            properties: {
+              markdown: {
+                type: "string",
+                description: "Markdown-formatted bundle recommendation",
+              },
+            },
+            required: ["markdown"],
           },
         },
       }),
