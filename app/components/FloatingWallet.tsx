@@ -124,7 +124,7 @@ export function FloatingWallet() {
   return (
     <div
       ref={containerRef}
-      className="fixed bottom-6 left-6 z-50"
+      className="fixed bottom-6 sm:bottom-12 left-6 sm:left-8 z-50"
     >
       {/* Expanded panel — sits ABOVE the button */}
       {isOpen && (
