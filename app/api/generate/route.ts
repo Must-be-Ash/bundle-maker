@@ -1,5 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { NextRequest, NextResponse } from "next/server";
+import { withX402FromHTTPServer } from "@x402/next";
 import { getSystemPrompt } from "@/app/lib/system-prompt";
+import { httpServer } from "./x402";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_BUNDLE_API_KEY,
@@ -247,13 +250,16 @@ async function discoverWellKnownEndpoints(): Promise<WellKnownEndpoint[]> {
 
 /* ─── Step 3: Generate bundle ────────────────────────────────────── */
 
-export async function POST(request: Request) {
+async function handler(request: NextRequest): Promise<NextResponse> {
   try {
     const body = await request.json();
     const prompt = body.prompt?.trim();
 
     if (!prompt) {
-      return Response.json({ error: "Prompt is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Prompt is required" },
+        { status: 400 }
+      );
     }
 
     // Step 1: Claude plans the search queries
@@ -312,9 +318,9 @@ ${JSON.stringify(wellKnownByOrigin, null, 2)}`;
       const textBlock = message.content.find((b) => b.type === "text");
       const markdown = textBlock?.text ?? "";
 
-      return new Response(markdown, {
+      return new NextResponse(markdown, {
         status: 200,
-        headers: { "Content-Type": "text/plain; charset=utf-8" },
+        headers: { "Content-Type": "text/markdown; charset=utf-8" },
       });
     } catch (err) {
       clearTimeout(timeout);
@@ -322,9 +328,11 @@ ${JSON.stringify(wellKnownByOrigin, null, 2)}`;
     }
   } catch (err) {
     console.error("Generate failed:", err);
-    return Response.json(
+    return NextResponse.json(
       { error: "Failed to generate bundle. Please try again." },
       { status: 500 }
     );
   }
 }
+
+export const POST = withX402FromHTTPServer(handler, httpServer);
