@@ -25,13 +25,19 @@ export function BundleGenerator() {
         body: JSON.stringify({ prompt: prompt.trim() }),
       });
 
+      if (res.status === 402) {
+        throw new Error(
+          "Payment required — this endpoint costs $0.01 USDC on Base. Pay with an x402-enabled client to generate a bundle."
+        );
+      }
+
       if (!res.ok) {
         const data = await res.json().catch(() => null);
         throw new Error(data?.error || "Failed to generate bundle. Please try again.");
       }
 
-      const text = await res.text();
-      setOutput(text);
+      const data = await res.json();
+      setOutput(data.markdown ?? "");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
