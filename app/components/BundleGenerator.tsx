@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { GlowButton } from "@/components/ui/glow-button";
 import { Textarea } from "@/components/ui/textarea";
+import { AuthGate } from "./AuthGate";
+import { useFetchWithX402 } from "@/app/hooks/useFetchWithX402";
+
+const REQUIRED_USDC = 0.01;
 
 export function BundleGenerator() {
   const [prompt, setPrompt] = useState("");
@@ -10,24 +14,31 @@ export function BundleGenerator() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const { fetchWithPayment } = useFetchWithX402();
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
+    if (!fetchWithPayment) {
+      setError("Wallet not ready. Please wait a moment and try again.");
+      return;
+    }
 
     setLoading(true);
     setError(null);
     setOutput("");
 
     try {
-      const res = await fetch("/api/generate", {
+      const res = await fetchWithPayment("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: prompt.trim() }),
       });
 
       if (res.status === 402) {
+        const body = await res.json().catch(() => ({}));
+        const reason = body.error || body.invalidReason || "unknown";
         throw new Error(
-          "Payment required — this endpoint costs $0.01 USDC on Base. Pay with an x402-enabled client to generate a bundle."
+          `Payment failed: ${reason}. Ensure your wallet has $0.01 USDC on Base.`
         );
       }
 
@@ -60,36 +71,40 @@ export function BundleGenerator() {
         Describe what you need and we&apos;ll find the right APIs for you
       </p>
 
-      <div className="flex flex-col gap-3 mb-6 w-full max-w-2xl">
-        <Textarea
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="e.g., Plan me a vacation, Help me hire developers, Create a marketing campaign..."
-          className="min-h-[48px] max-h-32 resize-none rounded-xl bg-[#1a1a1a] border-[#333333] text-foreground placeholder:text-muted-foreground focus:border-[#555555] focus:ring-[#555555]/20 text-sm"
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleGenerate();
-            }
-          }}
-        />
-        <GlowButton
-          onClick={handleGenerate}
-          disabled={loading || !prompt.trim()}
-          className="w-full py-3"
-        >
-          {loading ? (
-            <span className="flex items-center gap-2">
-              <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              Generating...
-            </span>
-          ) : (
-            "Generate Bundle"
-          )}
-        </GlowButton>
+      <div className="mb-6 w-full max-w-2xl">
+        <AuthGate requiredUsdc={REQUIRED_USDC}>
+          <div className="flex flex-col gap-3">
+            <Textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="e.g., Plan me a vacation, Help me hire developers, Create a marketing campaign..."
+              className="min-h-[48px] max-h-32 resize-none rounded-xl bg-[#1a1a1a] border-[#333333] text-foreground placeholder:text-muted-foreground focus:border-[#555555] focus:ring-[#555555]/20 text-sm"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleGenerate();
+                }
+              }}
+            />
+            <GlowButton
+              onClick={handleGenerate}
+              disabled={loading || !prompt.trim()}
+              className="w-full py-3"
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Generating...
+                </span>
+              ) : (
+                "Generate Bundle ($0.01)"
+              )}
+            </GlowButton>
+          </div>
+        </AuthGate>
       </div>
 
       {error && (

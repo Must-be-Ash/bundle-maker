@@ -1,313 +1,222 @@
-# Bundle Maker - Technical Specification
-
-> A Next.js serverless app that takes a user's need description, searches x402 Bazaar and Orthogonal for relevant paid API endpoints, and generates a ready-to-use skill markdown bundle.
-
----
-
-## Architecture Overview
-
-- **Framework**: Next.js (App Router, serverless)
-- **LLM**: Claude (Anthropic SDK, `@anthropic-ai/sdk`)
-- **UI**: shadcn + Tailwind CSS
-- **Deployment**: Vercel-ready (serverless functions)
-- **Auth**: Server-side env vars only (no user auth)
-
----
-
-## Checklist
-
-### 1. Project Setup
-
-- [x] Initialize Next.js project in `/Users/ashnouruzi/bundle-maker` with TypeScript, Tailwind CSS, App Router
-- [x] Install dependencies: `@anthropic-ai/sdk`, `shadcn` components (button, input, textarea, card)
-- [x] Set up `.env.local` with `ANTHROPIC_API_KEY` and `ORTHOGONAL_API_KEY`
-- [x] Set up Tailwind with Coinbase design tokens (colors, fonts) matching the `/endpoints` project
-- [x] Copy Coinbase fonts (Sans + Mono) from `/Users/ashnouruzi/endpoints/public/fonts/` into `public/fonts/`
-- [x] Set up `globals.css` with the same CSS custom properties as `/endpoints` (--cb-blue, --cb-black, --cb-gray-*, etc.)
-
-### 2. API Route: `POST /api/generate`
-
-This is the core endpoint. It receives a user prompt and returns a skill markdown bundle.
-
-- [x] Create `app/api/generate/route.ts`
-- [x] Accept JSON body: `{ "prompt": string }` (e.g., "plan me a vacation")
-- [x] **Step 1 - Search x402 Bazaar**: Call `GET https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?query={prompt}&network=eip155:8453&limit=20` to find relevant x402 endpoints via semantic search. Parse `resources[]` from the response to extract: resource URL, top-level `description`, pricing (from `accepts` array), input/output schemas (from `metadata`). No auth needed. Note: this is `/discovery/search`, NOT `/discovery/resources` — the latter is a paginated browse endpoint that silently ignores `query`. `limit` is hard-capped at 20 server-side; fan out across multiple planned queries for better recall.
-- [x] **Step 2 - Search Orthogonal**: Call `POST https://api.orthogonal.com/v1/search` with body `{ "prompt": "{prompt}", "limit": 10 }` and header `Authorization: Bearer {ORTHOGONAL_API_KEY}`. Parse results to extract: API name, endpoint path, description, pricing.
-- [x] **Step 3 - Send to Claude**: Call Anthropic messages API with a system prompt that instructs Claude to:
-  - Analyze the user's need
-  - Review the discovered endpoints from both Bazaar and Orthogonal
-  - Select the most relevant endpoints that work together to satisfy the need
-  - Generate a skill markdown file in the exact format (see Skill Markdown Format below)
-  - Include pricing per call for each endpoint
-  - Include usage examples with curl and TypeScript (@x402/fetch)
-  - Estimate total cost per run of the bundle
-- [x] Return the generated markdown as `text/plain` response (content-type: text/plain)
-- [x] Handle errors gracefully: if Bazaar returns empty, still use Orthogonal results (and vice versa). If both empty, return helpful message.
-- [x] Add timeout handling (60s max for the full pipeline)
-
-### 3. Skill Markdown Output Format
-
-The generated markdown must follow this structure (matching `video-agent-skill.md` and `mock-bundles.ts` patterns):
-
-```markdown
----
-name: {bundle-slug}
-description: {one-line description of what this bundle does}. Costs ~${estimated_cost} per run.
-argument-hint: [{relevant-arguments}]
----
-
-# {Bundle Name}
-
-{2-3 sentence description of what this bundle does and when to use it.}
-
-## Overview
-
-| Property | Value |
-|----------|-------|
-| Estimated Cost | ~${cost}/run |
-| Payment | USDC on Base via x402 / Orthogonal |
-| Endpoints | {count} services |
-
-## Steps
-
-1. {Step description}
-   {METHOD} {URL}
-   Body: { ... }
-   Cost: ${price}/call
-   Source: x402 Bazaar | Orthogonal
-
-2. {Step description}
-   ...
-
-## Usage with @x402/fetch (Node.js)
-
-```typescript
-// Example code showing how to call the bundled endpoints
-```
-
-## Usage with curl
-
-```bash
-# Example curl commands for each endpoint
-```
-
-## Notes
-
-- {Important notes about the bundle}
-```
-
-### 4. Claude System Prompt
-
-- [x] Create `app/lib/system-prompt.ts` containing the system prompt for Claude
-- [x] The system prompt should:
-  - Define Claude's role as an API bundle curator / skill creator
-  - Explain the skill markdown format with examples
-  - Instruct Claude to select only the most relevant endpoints (not dump everything)
-  - Tell Claude to organize endpoints into logical steps (workflow order)
-  - Instruct Claude to include accurate pricing from the search results
-  - Tell Claude to generate working code examples (curl + TypeScript)
-  - Instruct Claude to estimate total cost per run
-  - Tell Claude to attribute each endpoint's source (x402 Bazaar or Orthogonal)
-  - Include the full video-agent-skill.md as a reference example
-  - Include a mock-bundles example (e.g., the recruiter-agent skillMd) as another reference
-
-### 5. Frontend - Page Layout (`app/page.tsx`)
-
-Single-page layout with two sections:
-
-- [x] **Section 1: Featured Bundles (top)**
-  - Port the `TrendingBundles` component from `/Users/ashnouruzi/endpoints/app/components/TrendingBundles.tsx`
-  - Port the `BundleModal` component from `/Users/ashnouruzi/endpoints/app/components/BundleModal.tsx`
-  - Port the `ModalShell` component from `/Users/ashnouruzi/endpoints/app/components/ModalShell.tsx`
-  - Port the `FeaturedSection` component from `/Users/ashnouruzi/endpoints/app/components/FeaturedSection.tsx`
-  - Port the mock data from `/Users/ashnouruzi/endpoints/app/lib/mock-bundles.ts`
-  - Port logo utilities from `/Users/ashnouruzi/endpoints/app/lib/logos.ts`
-  - Port any required logos from `/Users/ashnouruzi/endpoints/public/logos/`
-  - Keep the exact same styling, animations, and behavior
-  - Section heading: "Trending Bundles" (same as original)
-
-- [x] **Section 2: Bundle Generator (bottom)**
-  - Section heading: "Create Your Own Bundle"
-  - Subheading: "Describe what you need and we'll find the right APIs for you"
-  - shadcn `Input` or `Textarea` for the user's need description (placeholder: "e.g., Plan me a vacation, Help me hire developers, Create a marketing campaign...")
-  - shadcn `Button` to submit (label: "Generate Bundle", loading state while processing)
-  - Output area: a styled `<pre>` or `<textarea readonly>` block showing the generated skill markdown
-  - Copy-to-clipboard button on the output area (top-right corner, like the BundleModal's copy button)
-  - Show loading/spinner state while the API call is in progress
-  - Error state if generation fails
-
-### 6. Frontend Components
-
-- [x] `app/components/BundleGenerator.tsx` — Client component with:
-  - Text input (shadcn)
-  - Submit button with loading state (shadcn)
-  - Output text box (styled code block with monospace font)
-  - Copy button (copies markdown to clipboard, shows "Copied!" feedback)
-  - Calls `POST /api/generate` with the user's prompt
-  - Displays the returned markdown in the output box
-
-- [x] Port from `/endpoints` (copy and adapt as needed):
-  - `app/components/TrendingBundles.tsx`
-  - `app/components/BundleModal.tsx`
-  - `app/components/ModalShell.tsx`
-  - `app/components/FeaturedSection.tsx`
-  - `app/lib/mock-bundles.ts`
-  - `app/lib/logos.ts`
-  - `lib/utils.ts` (cn utility)
-
-### 7. Layout & Styling (`app/layout.tsx`)
-
-- [x] Root layout with Coinbase fonts (Sans + Mono) — match `/endpoints` font setup
-- [x] Metadata: title "Bundle Maker — x402 Skill Creator", description
-- [x] Simple navbar with logo/title (no need to replicate the full endpoints navbar)
-- [x] Footer with link to x402 docs
-
-### 8. Environment Variables
-
-```
-ANTHROPIC_API_KEY=sk-ant-...         # Anthropic API key for Claude
-ORTHOGONAL_API_KEY=orth_live_...     # Orthogonal API key for search
-```
-
-- [x] Create `.env.example` documenting required env vars
-- [x] Add `.env.local` to `.gitignore`
-
-### 9. Error Handling & Edge Cases
-
-- [x] If Bazaar returns 0 results: still proceed with Orthogonal results only, note in output
-- [x] If Orthogonal returns 0 results: still proceed with Bazaar results only, note in output
-- [x] If both return 0 results: Claude should generate a helpful response explaining no endpoints were found and suggest refining the query
-- [x] If Anthropic API fails: return 500 with user-friendly error message
-- [x] If user submits empty prompt: client-side validation, disable submit
-- [x] Rate limiting: not required for v1 (env-key gated)
-
-### 10. File Structure
-
-```
-bundle-maker/
-├── app/
-│   ├── page.tsx                    # Main page (featured bundles + generator)
-│   ├── layout.tsx                  # Root layout, fonts, metadata
-│   ├── globals.css                 # Coinbase design tokens, Tailwind
-│   ├── api/
-│   │   └── generate/
-│   │       └── route.ts            # POST /api/generate — core bundle generation
-│   ├── components/
-│   │   ├── BundleGenerator.tsx     # Input + output + copy button
-│   │   ├── TrendingBundles.tsx     # Ported from /endpoints
-│   │   ├── BundleModal.tsx         # Ported from /endpoints
-│   │   ├── ModalShell.tsx          # Ported from /endpoints
-│   │   └── FeaturedSection.tsx     # Ported from /endpoints
-│   └── lib/
-│       ├── system-prompt.ts        # Claude system prompt
-│       ├── mock-bundles.ts         # Ported featured bundles data
-│       └── logos.ts                # Ported logo utilities
-├── components/
-│   └── ui/                         # shadcn components (button, input, textarea, card)
-├── lib/
-│   └── utils.ts                    # cn() utility
-├── public/
-│   ├── fonts/                      # Coinbase Sans + Mono
-│   └── logos/                      # Service logos
-├── .env.example
-├── .env.local                      # (gitignored)
-├── .gitignore
-├── next.config.ts
-├── tailwind.config.ts
-├── tsconfig.json
-├── package.json
-└── README.md
-```
-
-### 11. API Endpoint Details
-
-#### `POST /api/generate`
-
-**Request:**
-```json
-{
-  "prompt": "plan me a vacation"
-}
-```
-
-**Response (200):**
-```
-Content-Type: text/plain
-
----
-name: vacation-planner
-description: Search flights, hotels, weather, and car rentals to plan a complete trip. Costs ~$0.05 per run.
-argument-hint: [destination, dates]
----
-
-# Vacation Planner
-
-...full skill markdown...
-```
-
-**Response (400):**
-```json
-{ "error": "Prompt is required" }
-```
-
-**Response (500):**
-```json
-{ "error": "Failed to generate bundle. Please try again." }
-```
-
-#### Internal API Call Flow
-
-```
-User prompt
-    │
-    ├──► Bazaar: GET https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?query={prompt}&network=eip155:8453&limit=20
-    │         Returns: resources[] with resource, description, accepts, metadata, partialResults
-    │
-    ├──► Orthogonal: POST https://api.orthogonal.com/v1/search
-    │         Body: { "prompt": "{prompt}", "limit": 10 }
-    │         Returns: results[] with api, path, description, pricing
-    │
-    └──► Claude: POST https://api.anthropic.com/v1/messages
-              System: skill-creator prompt + reference examples
-              User: "Need: {prompt}\n\nBazaar results: {bazaar_json}\n\nOrthogonal results: {orthogonal_json}"
-              Returns: skill markdown string
-```
-
-### 12. Testing
-
-- [ ] Manually test with diverse prompts: "plan a vacation", "hire developers", "create a facebook ad", "build a trading bot", "monitor my website"
-- [ ] Verify the generated markdown follows the skill format
-- [ ] Verify copy-to-clipboard works in the UI
-- [ ] Verify the API endpoint works standalone (curl test)
-- [ ] Verify graceful handling when Bazaar or Orthogonal return empty results
-
----
-
-## Dependencies
-
-```json
-{
-  "@anthropic-ai/sdk": "latest",
-  "next": "latest",
-  "react": "latest",
-  "react-dom": "latest",
-  "framer-motion": "latest",
-  "lucide-react": "latest",
-  "clsx": "latest",
-  "tailwind-merge": "latest",
-  "class-variance-authority": "latest"
-}
-```
-
-shadcn components to install: `button`, `input`, `textarea`, `card`
-
----
-
-## Notes
-
-- The Bazaar discovery endpoint is **public** (no API key needed)
-- Orthogonal requires an API key (`Authorization: Bearer {key}`)
-- Both Bazaar and Orthogonal searches run **in parallel** for speed
-- Claude receives the combined results and curates the final bundle
-- The featured bundles section uses static data (ported from /endpoints) — in the future these will be agent-generated
-- The output is plain markdown text, copyable with one click
+ Plan: CDP embedded wallet + x402 pay-per-call in bundle-maker frontend                         
+                                                                                                                     
+ Context                                                                                                             
+                                                                                                                     
+ Today the bundle-maker frontend (app/components/BundleGenerator.tsx) calls                                          
+ the paywalled POST /api/generate with a plain fetch. That endpoint is now
+ gated at $0.01 USDC on Base mainnet (eip155:8453), so the browser always
+ gets a 402 and the UI shows "Payment required". This plan wires a CDP
+ embedded wallet into the page so end users can sign in, fund a wallet, and
+ pay $0.01 USDC per generation — without leaving the app.
+
+ We are porting the exact pattern proven in /Users/ashnouruzi/bob (which
+ gates a $0.50 onboarding call the same way). Reusing that code path keeps
+ risk low: the signer + EIP-712 quirks are already debugged there.
+
+ End state:
+ - Signed out → BundleGenerator renders an <AuthGate /> (sign-in CTA) instead
+ of the textarea + Generate button.
+ - Signed in with USDC ≥ $0.01 → click Generate → CDP signs EIP-712 →
+ wrapFetchWithPayment pays inline → handler returns the bundle markdown.
+ - Signed in but USDC < $0.01 → fund step shows the user's address + QR code
+ with "Send USDC on Base" copy.
+
+ ---
+ What we're porting from /Users/ashnouruzi/bob
+
+ ┌─────────────────────────────────────────────┬─────────────────────────────────────────────────────────────────┐
+ │                 Source file                 │                        What it gives us                         │
+ ├─────────────────────────────────────────────┼─────────────────────────────────────────────────────────────────┤
+ │ src/app/providers.tsx:1-37                  │ CDPReactProvider setup with theme overrides + createOnLogin:    │
+ │                                             │ "eoa"                                                           │
+ ├─────────────────────────────────────────────┼─────────────────────────────────────────────────────────────────┤
+ │                                             │ The full hook: CDP signer adapter + bigIntToString +            │
+ │ src/hooks/useFetchWithX402.ts:1-114         │ ensureEIP712Domain shims +                                      │
+ │                                             │ wrapFetchWithPayment(globalThis.fetch, x402Client)              │
+ ├─────────────────────────────────────────────┼─────────────────────────────────────────────────────────────────┤
+ │ src/components/OnboardingWizard.tsx:58-111  │ Pay-per-call flow pattern: if (!fetchWithPayment) → wallet not  │
+ │                                             │ ready, if (status === 402) rejection messaging, success path    │
+ ├─────────────────────────────────────────────┼─────────────────────────────────────────────────────────────────┤
+ │ src/components/OnboardingWizard.tsx:349-429 │ Fund step UI: address + copy + QR code + balance polling        │
+ └─────────────────────────────────────────────┴─────────────────────────────────────────────────────────────────┘
+
+ useFetchWithX402.ts should be copied verbatim — the BigInt and EIP712Domain shims exist to work around real bugs in
+  the CDP signEvmTypedData API. Don't simplify them.
+
+ ---
+ Implementation steps
+
+ 1. Install CDP packages
+
+ npm install @coinbase/cdp-core @coinbase/cdp-react @coinbase/cdp-hooks qrcode.react
+ (@x402/fetch, @x402/evm, viem are already in package.json.)
+
+ 2. Add env var
+
+ - NEXT_PUBLIC_CDP_PROJECT_ID — copy from bob's .env.local. Set in
+ bundle-maker/.env.local and Vercel.
+
+ 3. Create app/providers.tsx (new client component)
+
+ Port bob/src/app/providers.tsx:1-37 with these adjustments:
+ - appName: "Bundle Maker"
+ - authMethods: ["email", "oauth:google"] (drop X / Solana to match user's
+ selection)
+ - Keep dark theme overrides — they already match bundle-maker's globals.css
+ Geist Mono / #111111 background.
+ - Drop solana: {}.
+
+ 4. Mount provider in app/layout.tsx:51-58
+
+ Wrap <main> with <Providers>. Layout itself stays a server component;
+ Providers is the client boundary.
+
+ 5. Create app/hooks/useFetchWithX402.ts
+
+ Copy bob/src/hooks/useFetchWithX402.ts:1-114 verbatim. No edits — the
+ network (eip155:8453), the BigInt shim, the EIP712Domain shim are all
+ identical to what we need.
+
+ 6. Create app/components/AuthGate.tsx (new client component)
+
+ Renders one of three states based on CDP hooks (useIsSignedIn,
+ useCurrentUser):
+ - Signed out: A single-card UI matching the existing GlowButton aesthetic
+ with a primary CTA. Use CDP-provided sign-in components from
+ @coinbase/cdp-react (research the exact export name — typical options are
+ <AuthButton />, <SignInButton />, or composing with
+ useSignInWithEmail / useSignInWithOAuth hooks). If the prebuilt
+ components don't fit visually, build a button that triggers the CDP modal.
+ - Signed in & balance check pending or sufficient: render children
+ (i.e. the textarea + Generate button).
+ - Signed in but insufficient balance: render <FundStep address={...} />.
+
+ Component signature:
+ <AuthGate requiredUsdc={0.01}>
+   {/* textarea + Generate button */}
+ </AuthGate>
+
+ 7. Create app/components/FundStep.tsx
+
+ Port bob/src/components/OnboardingWizard.tsx:349-429. Shows:
+ - The user's EOA address (truncated + copyable, full on tap)
+ - A qrcode.react <QRCodeSVG /> of the address
+ - "Send USDC on Base — at least $0.01 required" caption
+ - "Sign out" link (uses useSignOut)
+ - Auto-polls balance every 5s; once balance ≥ required, AuthGate flips back
+ to render children.
+
+ For balance reads, reuse the viem pattern from
+ bob/src/components/NavWalletButton.tsx:23-49 — readContract USDC
+ balanceOf(address) on Base mainnet (USDC contract
+ 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913, 6 decimals). Build the
+ publicClient once at module scope, like
+ bob/src/hooks/useFetchWithX402.ts:10.
+
+ 8. Modify app/components/BundleGenerator.tsx
+
+ - Wrap the textarea + GlowButton block in <AuthGate requiredUsdc={0.01}>.
+ - Replace fetch("/api/generate", ...) with fetchWithPayment("/api/generate", ...)
+ from useFetchWithX402().
+ - Remove the current static "Payment required — pay with an x402-enabled
+ client" branch — payment now happens automatically via CDP.
+ - Keep the JSON parser (data.markdown) and copy-to-clipboard logic as is.
+ - Add explicit handling: if fetchWithPayment is null (signer not ready)
+ show "Wallet not ready, please wait."; if response.status === 402 after a
+ paid call (race with empty balance), surface the facilitator reason from
+ the body.
+
+ 9. Local + prod test (manual)
+
+ - npm run dev → load http://localhost:3000.
+ - Confirm: signed out shows AuthGate sign-in card; clicking sign-in opens
+ CDP flow; after sign-in, see address truncated.
+ - With < $0.01 USDC: confirm FundStep renders with QR + address; send a
+ small amount of USDC; confirm it auto-flips to the textarea once balance
+ arrives.
+ - With ≥ $0.01 USDC: type "planning a vacation" → click Generate → confirm
+ one EIP-712 sign prompt from CDP → bundle markdown renders → wallet
+ balance drops $0.01 → BaseScan tx visible.
+ - Confirm /.well-known/x402 and direct curl POST /api/generate still
+ return 402 (paywall unaffected).
+
+ 10. Out of scope
+
+ - No header/nav wallet button (per user's choice — AuthGate replaces the
+ generator UI when signed out).
+ - No Coinbase onramp widget (user picked address+QR funding).
+ - No persisted history of generations.
+ - No spend limits / per-session caps — single $0.01 per click is the limit
+ surface. Revisit if abuse appears.
+
+ ---
+ Files touched
+
+ ┌────────────────────────────────────┬──────────────────────────────────────────────────────────────────────────┐
+ │                Path                │                                  Action                                  │
+ ├────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────┤
+ │ package.json                       │ + @coinbase/cdp-core, @coinbase/cdp-react, @coinbase/cdp-hooks,          │
+ │                                    │ qrcode.react                                                             │
+ ├────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────┤
+ │ .env.local (and Vercel)            │ + NEXT_PUBLIC_CDP_PROJECT_ID                                             │
+ ├────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────┤
+ │ app/providers.tsx                  │ NEW — CDPReactProvider wrapper                                           │
+ ├────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────┤
+ │ app/layout.tsx                     │ wrap <main> in <Providers>                                               │
+ ├────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────┤
+ │ app/hooks/useFetchWithX402.ts      │ NEW — verbatim port from bob                                             │
+ ├────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────┤
+ │ app/components/AuthGate.tsx        │ NEW — gates children on auth + balance                                   │
+     │                                                                                                            
+     ├────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────
+     ┤                                                                                                            
+     │ package.json                       │ + @coinbase/cdp-core, @coinbase/cdp-react, @coinbase/cdp-hooks,       
+     │                                                                                                            
+     │                                    │ qrcode.react
+     │
+     ├────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────
+     ┤
+     │ .env.local (and Vercel)            │ + NEXT_PUBLIC_CDP_PROJECT_ID
+     │                  
+     ├────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────
+     ┤                                           
+     │ app/providers.tsx                  │ NEW — CDPReactProvider wrapper  
+     │                 
+     ├────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────
+     ┤                                                               
+     │ app/layout.tsx                     │ wrap <main> in <Providers>
+     │                                                                  
+     ├────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────
+     ┤                                                                      
+     │ app/hooks/useFetchWithX402.ts      │ NEW — verbatim port from bob                                             
+     │
+     ├────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────
+     ┤
+     │ app/components/AuthGate.tsx        │ NEW — gates children on auth + balance
+     │                           
+     ├────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────
+     ┤                                       
+     │ app/components/FundStep.tsx        │ NEW — address + QR + balance polling
+     │                                                                                            
+     ├────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────
+     ┤
+     │ app/components/BundleGenerator.tsx │ wrap UI in <AuthGate>, swap fetch → fetchWithPayment
+     │
+     └────────────────────────────────────┴──────────────────────────────────────────────────────────────────────────
+     ┘
+
+     ---
+     Verification (must all pass before considering done)
+
+     1. npx tsc --noEmit clean.
+     2. npm run build clean.
+     3. Signed-out browser: AuthGate sign-in card visible; no textarea.
+     4. CDP sign-in works (email OTP + Google OAuth).
+     5. Wallet with 0 USDC: FundStep renders address + QR; balance poll triggers
+     re-render once funded.
+     6. Wallet with ≥ $0.01: Generate triggers exactly one EIP-712 sign; on
+     success, markdown bundle renders; wallet balance decreases by $0.01;
+     BaseScan tx visible.
+     7. Direct curl POST /api/generate (no payment) still returns HTTP 402 —
+     server-side paywall is unchanged.
+     8. /.well-known/x402 still returns the resource list — discovery unchanged.

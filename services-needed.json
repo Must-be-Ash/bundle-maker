@@ -1,0 +1,1650 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-04-18",
+  "description": "Wishlist of x402 services needed to ship the bundles in BUNDLES_NEEDING_NEW_ENDPOINTS.md. Same schema as services.json. Entries use status='hidden' to match the existing wishlist convention (e.g. sec-edgar). Endpoint URLs/methods are taken from each provider's public docs; pricing is null because the x402 wrap fee is TBD.",
+  "total_services": 50,
+  "services": [
+    {
+      "id": "polymarket",
+      "name": "Polymarket",
+      "description": "Prediction market data and order execution via the CLOB API.",
+      "category": "Trading",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": ["Polygon"],
+      "website": "https://docs.polymarket.com",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://gamma-api.polymarket.com/markets",
+          "method": "GET",
+          "description": "List active markets and metadata",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://clob.polymarket.com/order",
+          "method": "POST",
+          "description": "Place a buy/sell order on a market",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://clob.polymarket.com/orders",
+          "method": "GET",
+          "description": "List open and historical orders for a wallet",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 3,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Unlocks: Polymarket News Trader bundle (already mocked in endpoints/mock-bundles.ts). Native chain is Polygon; needs an x402 wrapper that bridges USDC on Base to Polygon settlement."
+    },
+    {
+      "id": "kalshi",
+      "name": "Kalshi",
+      "description": "CFTC-regulated event contracts — markets, orders, positions.",
+      "category": "Trading",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://trading-api.readme.io/reference/getting-started",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://trading-api.kalshi.com/trade-api/v2/markets",
+          "method": "GET",
+          "description": "List event-contract markets",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://trading-api.kalshi.com/trade-api/v2/portfolio/orders",
+          "method": "POST",
+          "description": "Submit an order on a Kalshi market",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Regulated US prediction markets. Required for the Polymarket-style bundle to also serve US-only users."
+    },
+    {
+      "id": "youtube-data",
+      "name": "YouTube Data + Transcripts",
+      "description": "Search videos, fetch metadata, retrieve auto/manual transcripts and captions.",
+      "category": "Media",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://developers.google.com/youtube/v3",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://www.googleapis.com/youtube/v3/search",
+          "method": "GET",
+          "description": "Search videos, channels, playlists",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://www.googleapis.com/youtube/v3/videos",
+          "method": "GET",
+          "description": "Get video metadata, statistics, content details",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://www.googleapis.com/youtube/v3/captions",
+          "method": "GET",
+          "description": "List and download captions for a video",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 3,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Unlocks: YouTube → Podcast bundle. Captions endpoint requires OAuth on the official API; an unofficial transcript fetcher (e.g. youtube-transcript-api) is the practical wrap target."
+    },
+    {
+      "id": "elevenlabs",
+      "name": "ElevenLabs",
+      "description": "Premium TTS and voice cloning.",
+      "category": "Media",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://elevenlabs.io/docs",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
+          "method": "POST",
+          "description": "Synthesize speech from text using a chosen voice",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.elevenlabs.io/v1/voices/add",
+          "method": "POST",
+          "description": "Clone a voice from sample audio",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.elevenlabs.io/v1/dubbing",
+          "method": "POST",
+          "description": "Auto-dub a video into another language",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 3,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Unlocks: Voice Cloning + Narration bundle. Deepgram TTS does not support cloning."
+    },
+    {
+      "id": "alpaca",
+      "name": "Alpaca",
+      "description": "US equities + crypto brokerage — quotes, bars, and order execution.",
+      "category": "Trading",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://docs.alpaca.markets",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://data.alpaca.markets/v2/stocks/{symbol}/quotes/latest",
+          "method": "GET",
+          "description": "Latest quote for a stock",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://paper-api.alpaca.markets/v2/orders",
+          "method": "POST",
+          "description": "Submit an equity or crypto order (paper or live)",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://paper-api.alpaca.markets/v2/positions",
+          "method": "GET",
+          "description": "List current positions",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 3,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Unlocks: Equities Trading Agent. Easiest brokerage to wrap — REST-first, paper trading available."
+    },
+    {
+      "id": "interactive-brokers",
+      "name": "Interactive Brokers",
+      "description": "Multi-asset brokerage — equities, options, futures, FX, bonds.",
+      "category": "Trading",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://www.interactivebrokers.com/api/doc.html",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://localhost:5000/v1/api/iserver/marketdata/snapshot",
+          "method": "GET",
+          "description": "Market data snapshot (requires Client Portal Gateway)",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://localhost:5000/v1/api/iserver/account/{accountId}/orders",
+          "method": "POST",
+          "description": "Place a multi-asset order",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Powerful but operationally heavy — requires Client Portal Gateway or TWS. Use Alpaca first; add IBKR for institutional users."
+    },
+    {
+      "id": "polygon-io",
+      "name": "Polygon.io",
+      "description": "Real-time and historical market data — stocks, options, forex, crypto, indices.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://polygon.io/docs",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.polygon.io/v2/aggs/ticker/{ticker}/range/{multiplier}/{timespan}/{from}/{to}",
+          "method": "GET",
+          "description": "OHLCV aggregate bars for a ticker",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.polygon.io/v3/reference/tickers",
+          "method": "GET",
+          "description": "Reference data for tickers",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers/{ticker}",
+          "method": "GET",
+          "description": "Real-time snapshot for a US stock",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 3,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Alpha-vantage alternative with better real-time depth. Good complement once alpha-vantage flips to live."
+    },
+    {
+      "id": "financial-modeling-prep",
+      "name": "Financial Modeling Prep",
+      "description": "Earnings calendar, corporate actions, financial statements, ratios.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://site.financialmodelingprep.com/developer/docs",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://financialmodelingprep.com/api/v3/earning_calendar",
+          "method": "GET",
+          "description": "Upcoming earnings calendar",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://financialmodelingprep.com/api/v3/income-statement/{symbol}",
+          "method": "GET",
+          "description": "Income statement (annual/quarterly)",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://financialmodelingprep.com/api/v3/stock_dividend/{symbol}",
+          "method": "GET",
+          "description": "Dividend history and corporate actions",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 3,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Fills the corporate-actions gap that Alpha Vantage and Polygon don't cover well."
+    },
+    {
+      "id": "securitytrails",
+      "name": "SecurityTrails",
+      "description": "WHOIS, passive DNS, subdomain discovery, historical DNS records.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://docs.securitytrails.com",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.securitytrails.com/v1/domain/{hostname}",
+          "method": "GET",
+          "description": "Domain details (current DNS, alexa rank, etc.)",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.securitytrails.com/v1/domain/{hostname}/subdomains",
+          "method": "GET",
+          "description": "All known subdomains for a hostname",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.securitytrails.com/v1/history/{hostname}/dns/{type}",
+          "method": "GET",
+          "description": "Historical DNS records",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 3,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Unlocks: Threat Intelligence bundle (DNS recon)."
+    },
+    {
+      "id": "nvd",
+      "name": "NVD (National Vulnerability Database)",
+      "description": "CVE lookup, CPE search, CVSS scoring.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://nvd.nist.gov/developers",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://services.nvd.nist.gov/rest/json/cves/2.0",
+          "method": "GET",
+          "description": "Search CVEs by keyword, CPE, severity, date",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://services.nvd.nist.gov/rest/json/cpes/2.0",
+          "method": "GET",
+          "description": "Search the CPE dictionary",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Free upstream API — wrap fee covers infra + rate-limit pooling. Unlocks: Threat Intelligence bundle."
+    },
+    {
+      "id": "hubspot",
+      "name": "HubSpot",
+      "description": "CRM — contacts, companies, deals, engagements, tickets.",
+      "category": "Other",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://developers.hubspot.com/docs/api/overview",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.hubapi.com/crm/v3/objects/contacts",
+          "method": "POST",
+          "description": "Create or upsert a contact",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.hubapi.com/crm/v3/objects/deals",
+          "method": "POST",
+          "description": "Create a deal",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.hubapi.com/crm/v3/objects/contacts/search",
+          "method": "POST",
+          "description": "Search contacts by filter",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.hubapi.com/engagements/v1/engagements",
+          "method": "POST",
+          "description": "Log an engagement (note, call, email)",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 4,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Highest-leverage CRM wrap. Required for CRM-Synced Sales Agent bundle."
+    },
+    {
+      "id": "salesforce",
+      "name": "Salesforce",
+      "description": "Enterprise CRM — sObject CRUD, SOQL queries, Composite API.",
+      "category": "Other",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://developer.salesforce.com/docs/apis",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://{instance}.salesforce.com/services/data/v60.0/sobjects/Lead",
+          "method": "POST",
+          "description": "Create a Lead",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://{instance}.salesforce.com/services/data/v60.0/query",
+          "method": "GET",
+          "description": "Execute a SOQL query",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://{instance}.salesforce.com/services/data/v60.0/composite",
+          "method": "POST",
+          "description": "Composite request — multiple subrequests in one call",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 3,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Required for enterprise CRM bundle. OAuth + per-org instance URL makes wrapping non-trivial."
+    },
+    {
+      "id": "pipedrive",
+      "name": "Pipedrive",
+      "description": "Sales-focused CRM — deals, persons, organizations, activities.",
+      "category": "Other",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://developers.pipedrive.com/docs/api/v1",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.pipedrive.com/v1/deals",
+          "method": "POST",
+          "description": "Create a deal",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.pipedrive.com/v1/persons",
+          "method": "POST",
+          "description": "Create a person",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Lighter-weight CRM target than HubSpot/Salesforce."
+    },
+    {
+      "id": "attio",
+      "name": "Attio",
+      "description": "Modern data-model CRM — flexible objects, lists, notes.",
+      "category": "Other",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://developers.attio.com",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.attio.com/v2/objects/{object}/records",
+          "method": "POST",
+          "description": "Create a record on any object",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.attio.com/v2/objects/{object}/records/query",
+          "method": "POST",
+          "description": "Query records with filters",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Popular with crypto-native teams. Cleaner schema for agents than legacy CRMs."
+    },
+    {
+      "id": "google-calendar",
+      "name": "Google Calendar",
+      "description": "Calendar events — list, create, update, free/busy.",
+      "category": "Other",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://developers.google.com/calendar/api",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://www.googleapis.com/calendar/v3/calendars/{calendarId}/events",
+          "method": "POST",
+          "description": "Create a calendar event",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://www.googleapis.com/calendar/v3/freeBusy",
+          "method": "POST",
+          "description": "Query free/busy info across calendars",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Required for Calendar / Booking Agent bundle."
+    },
+    {
+      "id": "microsoft-graph",
+      "name": "Microsoft Graph",
+      "description": "Outlook calendar/mail/contacts + Teams + Drive.",
+      "category": "Other",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://learn.microsoft.com/en-us/graph/overview",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://graph.microsoft.com/v1.0/me/events",
+          "method": "POST",
+          "description": "Create an Outlook calendar event",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://graph.microsoft.com/v1.0/me/calendar/getSchedule",
+          "method": "POST",
+          "description": "Free/busy across attendees",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://graph.microsoft.com/v1.0/me/sendMail",
+          "method": "POST",
+          "description": "Send mail as the signed-in user",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 3,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Enterprise calendar coverage. Needed alongside google-calendar."
+    },
+    {
+      "id": "cal-com",
+      "name": "Cal.com",
+      "description": "Open-source scheduling — booking links, event types, availability.",
+      "category": "Other",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://cal.com/docs/api-reference",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.cal.com/v2/bookings",
+          "method": "POST",
+          "description": "Create a booking against a Cal.com event type",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.cal.com/v2/slots/available",
+          "method": "GET",
+          "description": "Query available booking slots",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Self-hostable, agent-friendly scheduling layer."
+    },
+    {
+      "id": "calendly",
+      "name": "Calendly",
+      "description": "Scheduling — event types, scheduled events, invitees.",
+      "category": "Other",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://developer.calendly.com/api-docs",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.calendly.com/scheduled_events",
+          "method": "GET",
+          "description": "List scheduled events",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.calendly.com/scheduling_links",
+          "method": "POST",
+          "description": "Create a single-use scheduling link",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Mainstream consumer/SMB scheduling counterpart to Cal.com."
+    },
+    {
+      "id": "greenhouse",
+      "name": "Greenhouse",
+      "description": "ATS — candidates, applications, interviews, scorecards.",
+      "category": "Other",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://developers.greenhouse.io",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://harvest.greenhouse.io/v1/candidates",
+          "method": "GET",
+          "description": "List candidates",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://harvest.greenhouse.io/v1/applications/{id}/scheduled_interviews",
+          "method": "POST",
+          "description": "Schedule an interview",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Required for ATS Recruiting Agent bundle."
+    },
+    {
+      "id": "lever",
+      "name": "Lever",
+      "description": "ATS — candidates, opportunities, postings, feedback.",
+      "category": "Other",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://hire.lever.co/developer/documentation",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.lever.co/v1/opportunities",
+          "method": "GET",
+          "description": "List candidate opportunities",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.lever.co/v1/opportunities/{id}/notes",
+          "method": "POST",
+          "description": "Add a note on an opportunity",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Greenhouse alternative for ATS recruiting bundle."
+    },
+    {
+      "id": "workable",
+      "name": "Workable",
+      "description": "ATS for SMB — jobs, candidates, stages, comments.",
+      "category": "Other",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://workable.readme.io/reference",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://{subdomain}.workable.com/spi/v3/candidates",
+          "method": "GET",
+          "description": "List candidates across jobs",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 1,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "SMB-tier ATS coverage."
+    },
+    {
+      "id": "linkedin-recruiter",
+      "name": "LinkedIn Recruiter",
+      "description": "Authenticated LinkedIn recruiter search, profiles, InMail.",
+      "category": "Social",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://learn.microsoft.com/en-us/linkedin/talent",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.linkedin.com/v2/recruiterCandidates",
+          "method": "GET",
+          "description": "Search candidates via Recruiter System Connect",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 1,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "LinkedIn Talent Solutions partner program access required. The mock recruiter bundle assumes this exists; today only `clado` partially covers it."
+    },
+    {
+      "id": "shopify",
+      "name": "Shopify Admin API",
+      "description": "E-commerce store management — products, orders, fulfillment, customers.",
+      "category": "Other",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://shopify.dev/docs/api/admin",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://{shop}.myshopify.com/admin/api/2024-10/products.json",
+          "method": "POST",
+          "description": "Create a product listing",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://{shop}.myshopify.com/admin/api/2024-10/orders.json",
+          "method": "GET",
+          "description": "List orders",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://{shop}.myshopify.com/admin/api/2024-10/inventory_levels/set.json",
+          "method": "POST",
+          "description": "Adjust inventory level for a variant",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 3,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Required for E-commerce Listing / Operations Agent bundle."
+    },
+    {
+      "id": "amazon-sp-api",
+      "name": "Amazon SP-API",
+      "description": "Amazon Selling Partner API — listings, orders, FBA inventory, reports.",
+      "category": "Other",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://developer-docs.amazon.com/sp-api",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://sellingpartnerapi-na.amazon.com/listings/2021-08-01/items/{sellerId}/{sku}",
+          "method": "PUT",
+          "description": "Create or update a product listing",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://sellingpartnerapi-na.amazon.com/orders/v0/orders",
+          "method": "GET",
+          "description": "List orders within a date range",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "AWS SigV4 signing + LWA OAuth — non-trivial to wrap. High value for sellers."
+    },
+    {
+      "id": "ebay",
+      "name": "eBay",
+      "description": "eBay Sell + Buy APIs — inventory, offers, orders, search.",
+      "category": "Other",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://developer.ebay.com/api-docs",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.ebay.com/sell/inventory/v1/inventory_item/{sku}",
+          "method": "PUT",
+          "description": "Create or replace an inventory item",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.ebay.com/sell/inventory/v1/offer",
+          "method": "POST",
+          "description": "Create an offer for an inventory item",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Secondary marketplace for E-commerce bundle."
+    },
+    {
+      "id": "etsy",
+      "name": "Etsy",
+      "description": "Etsy Open API — listings, shops, transactions.",
+      "category": "Other",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://developers.etsy.com/documentation",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://openapi.etsy.com/v3/application/shops/{shop_id}/listings",
+          "method": "POST",
+          "description": "Create a listing in a shop",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 1,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Niche but useful for AI-generated craft/print E-commerce flows."
+    },
+    {
+      "id": "easypost",
+      "name": "EasyPost",
+      "description": "Multi-carrier shipping API — labels, tracking, rates across FedEx/UPS/USPS/DHL.",
+      "category": "Other",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://docs.easypost.com",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.easypost.com/v2/shipments",
+          "method": "POST",
+          "description": "Create a shipment and get rates",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.easypost.com/v2/trackers",
+          "method": "POST",
+          "description": "Create a tracker for a tracking code",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Required for Logistics / Shipping Tracker bundle. Single API across all major carriers."
+    },
+    {
+      "id": "shippo",
+      "name": "Shippo",
+      "description": "Multi-carrier shipping — rates, labels, tracking, returns.",
+      "category": "Other",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://docs.goshippo.com",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.goshippo.com/transactions",
+          "method": "POST",
+          "description": "Purchase a shipping label from a chosen rate",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.goshippo.com/tracks/{carrier}/{tracking_number}",
+          "method": "GET",
+          "description": "Track a shipment",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "EasyPost alternative."
+    },
+    {
+      "id": "zillow",
+      "name": "Zillow",
+      "description": "Property listings, Zestimate, neighborhood data.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://www.zillowgroup.com/developers",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.bridgedataoutput.com/api/v2/zestimates_v2/zestimates",
+          "method": "GET",
+          "description": "Zestimate value lookup",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 1,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Zillow's official API is gated; in practice wrap via Bridge Interactive or RapidAPI Zillow proxies."
+    },
+    {
+      "id": "redfin",
+      "name": "Redfin",
+      "description": "Listing search, property details, agent + price history.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://www.redfin.com",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [],
+      "endpoint_count": 0,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "No public API — would need a scrape-based wrap. Lower priority than RapidAPI Zillow."
+    },
+    {
+      "id": "mlsgrid",
+      "name": "MLS Grid",
+      "description": "Standardized RESO Web API access to MLS listing data across the US.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://www.mlsgrid.com",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.mlsgrid.com/v2/Property",
+          "method": "GET",
+          "description": "Query property listings (RESO Web API)",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 1,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Cleanest path to true MLS coverage. Per-MLS licensing required."
+    },
+    {
+      "id": "arxiv",
+      "name": "arXiv",
+      "description": "Open-access preprint search — physics, math, CS, biology, economics.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://info.arxiv.org/help/api/index.html",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://export.arxiv.org/api/query",
+          "method": "GET",
+          "description": "Search arXiv papers (Atom XML response)",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 1,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Free upstream — wrap fee covers parsing + rate-limit pooling."
+    },
+    {
+      "id": "semantic-scholar",
+      "name": "Semantic Scholar",
+      "description": "Academic graph — paper metadata, citations, references, embeddings.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://api.semanticscholar.org",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.semanticscholar.org/graph/v1/paper/search",
+          "method": "GET",
+          "description": "Search papers by query",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.semanticscholar.org/graph/v1/paper/{paper_id}/citations",
+          "method": "GET",
+          "description": "List citations for a paper",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Required for Academic Research bundle."
+    },
+    {
+      "id": "pubmed",
+      "name": "PubMed (NCBI E-utilities)",
+      "description": "Biomedical literature search and retrieval.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://www.ncbi.nlm.nih.gov/books/NBK25501",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+          "method": "GET",
+          "description": "Search PubMed for PMIDs",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
+          "method": "GET",
+          "description": "Fetch full records by PMID",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Underpins Healthcare/Drug Research bundle and overlaps with Academic Research."
+    },
+    {
+      "id": "uspto",
+      "name": "USPTO",
+      "description": "US patent search — applications, grants, assignments.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://developer.uspto.gov",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://developer.uspto.gov/ds-api/oa-actions/v1/records",
+          "method": "GET",
+          "description": "Office action records search",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://developer.uspto.gov/ibd-api/v1/patent/application",
+          "method": "GET",
+          "description": "Patent application data search",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Required for Patent Search bundle."
+    },
+    {
+      "id": "google-patents",
+      "name": "Google Patents",
+      "description": "Public patent search across 100+ patent offices.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://patents.google.com",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://patents.google.com/xhr/query",
+          "method": "GET",
+          "description": "Patent search (no official public API; scrape-based wrap)",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 1,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Bigger international coverage than USPTO. No official API; wrap via SerpAPI Google Patents or scraping."
+    },
+    {
+      "id": "usaspending",
+      "name": "USAspending.gov",
+      "description": "US federal contracts, grants, loans, agency budget data.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://api.usaspending.gov",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.usaspending.gov/api/v2/search/spending_by_award/",
+          "method": "POST",
+          "description": "Search awards by recipient, agency, location, date",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.usaspending.gov/api/v2/recipient/duns/",
+          "method": "GET",
+          "description": "Recipient profile by DUNS/UEI",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Required for Government / Public Records bundle."
+    },
+    {
+      "id": "courtlistener",
+      "name": "CourtListener",
+      "description": "Court opinions, oral arguments, RECAP federal court documents.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://www.courtlistener.com/help/api",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://www.courtlistener.com/api/rest/v3/search/",
+          "method": "GET",
+          "description": "Search opinions, dockets, oral arguments",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://www.courtlistener.com/api/rest/v3/dockets/",
+          "method": "GET",
+          "description": "Federal court docket data",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "PACER alternative with no per-page fees. Required for Government / Public Records bundle."
+    },
+    {
+      "id": "propublica-nonprofit",
+      "name": "ProPublica Nonprofit Explorer",
+      "description": "IRS Form 990 filings for US nonprofits.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://projects.propublica.org/nonprofits/api",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://projects.propublica.org/nonprofits/api/v2/search.json",
+          "method": "GET",
+          "description": "Search nonprofits by name/state/category",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://projects.propublica.org/nonprofits/api/v2/organizations/{ein}.json",
+          "method": "GET",
+          "description": "Full filing record by EIN",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Free upstream. Required for Government / Public Records bundle."
+    },
+    {
+      "id": "fec",
+      "name": "FEC",
+      "description": "US Federal Election Commission — candidates, committees, filings, contributions.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://api.open.fec.gov",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.open.fec.gov/v1/candidates/search",
+          "method": "GET",
+          "description": "Search candidates",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.open.fec.gov/v1/schedules/schedule_a",
+          "method": "GET",
+          "description": "Itemized individual contributions",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Free upstream. Useful for political-research bundles."
+    },
+    {
+      "id": "openfda",
+      "name": "openFDA",
+      "description": "Drug labels, adverse events, recalls, device 510(k), food enforcement.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://open.fda.gov/apis",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.fda.gov/drug/event.json",
+          "method": "GET",
+          "description": "FAERS adverse event reports",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.fda.gov/drug/label.json",
+          "method": "GET",
+          "description": "Structured product labeling",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Required for Healthcare / Drug Research bundle."
+    },
+    {
+      "id": "clinicaltrials-gov",
+      "name": "ClinicalTrials.gov",
+      "description": "US clinical trials registry — studies, conditions, locations, results.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://clinicaltrials.gov/data-api/api",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://clinicaltrials.gov/api/v2/studies",
+          "method": "GET",
+          "description": "Search and retrieve clinical trial studies",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 1,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Required for Healthcare / Drug Research bundle."
+    },
+    {
+      "id": "the-odds-api",
+      "name": "The Odds API",
+      "description": "Sportsbook odds across NFL, NBA, MLB, soccer, etc.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://the-odds-api.com",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.the-odds-api.com/v4/sports/{sport}/odds",
+          "method": "GET",
+          "description": "Live odds for a sport across configured bookmakers",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 1,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Required for Sports Data / Betting bundle."
+    },
+    {
+      "id": "sportsdata-io",
+      "name": "SportsData.io",
+      "description": "Real-time stats, schedules, players, projections across major leagues.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://sportsdata.io/developers/api-documentation",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.sportsdata.io/v3/{sport}/scores/json/Games/{date}",
+          "method": "GET",
+          "description": "Games and scores for a date",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://api.sportsdata.io/v3/{sport}/projections/json/PlayerGameProjectionStatsByDate/{date}",
+          "method": "GET",
+          "description": "Player projections for daily fantasy",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Stats/projections counterpart to The Odds API."
+    },
+    {
+      "id": "espn",
+      "name": "ESPN",
+      "description": "Public ESPN scoreboard and stats endpoints.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://www.espn.com",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/scoreboard",
+          "method": "GET",
+          "description": "Live scoreboard for a league",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 1,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Unofficial but stable public endpoints. Free upstream — wrap fee is pure infra."
+    },
+    {
+      "id": "google-maps-platform",
+      "name": "Google Maps Platform",
+      "description": "Places, directions, geocoding, distance matrix, roads, time zones.",
+      "category": "Data",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://developers.google.com/maps/documentation",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://maps.googleapis.com/maps/api/place/textsearch/json",
+          "method": "GET",
+          "description": "Places text search",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://maps.googleapis.com/maps/api/place/details/json",
+          "method": "GET",
+          "description": "Place details by place_id",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://maps.googleapis.com/maps/api/directions/json",
+          "method": "GET",
+          "description": "Driving / walking / transit directions",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://maps.googleapis.com/maps/api/geocode/json",
+          "method": "GET",
+          "description": "Forward and reverse geocoding",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 4,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "The mock vacation-planner bundle assumes these exist via stableenrich.dev but they are not in services.json proper. Complements `mapbox`."
+    },
+    {
+      "id": "google-vision",
+      "name": "Google Cloud Vision",
+      "description": "Image labels, OCR, faces, logos, landmarks, safe search.",
+      "category": "Media",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://cloud.google.com/vision/docs",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://vision.googleapis.com/v1/images:annotate",
+          "method": "POST",
+          "description": "Annotate an image with selected feature types",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 1,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Cheaper and faster than GPT-4o vision for high-volume label/OCR/safe-search workloads."
+    },
+    {
+      "id": "aws-rekognition",
+      "name": "AWS Rekognition",
+      "description": "Image and video analysis — labels, faces, moderation, text, celebrities.",
+      "category": "Media",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://docs.aws.amazon.com/rekognition",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://rekognition.{region}.amazonaws.com/",
+          "method": "POST",
+          "description": "Rekognition action via X-Amz-Target header (DetectLabels, DetectFaces, etc.)",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 1,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "AWS SigV4 signing required. Strong on video moderation."
+    },
+    {
+      "id": "clarifai",
+      "name": "Clarifai",
+      "description": "Pre-trained vision models — concepts, demographics, moderation, custom workflows.",
+      "category": "Media",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://docs.clarifai.com",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://api.clarifai.com/v2/models/{model_id}/outputs",
+          "method": "POST",
+          "description": "Run a model on an image or video URL",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 1,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Vision-API alternative with custom workflow chaining."
+    },
+    {
+      "id": "persona",
+      "name": "Persona",
+      "description": "Identity verification — document scan, selfie liveness, database checks.",
+      "category": "Other",
+      "integration_type": "3P",
+      "type": "service",
+      "status": "hidden",
+      "chains": [],
+      "website": "https://docs.withpersona.com",
+      "provider": null,
+      "provider_website": null,
+      "endpoints": [
+        {
+          "url": "https://withpersona.com/api/v1/inquiries",
+          "method": "POST",
+          "description": "Create an identity verification inquiry",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        },
+        {
+          "url": "https://withpersona.com/api/v1/inquiries/{id}",
+          "method": "GET",
+          "description": "Fetch inquiry status and extracted data",
+          "pricing": null,
+          "supported_networks": ["Base"]
+        }
+      ],
+      "endpoint_count": 2,
+      "endpoint_source": "docs",
+      "bazaar_verified": false,
+      "notes": "Required for KYC + face-match identity flows."
+    }
+  ]
+}

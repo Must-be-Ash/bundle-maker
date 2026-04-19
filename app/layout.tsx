@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { Providers } from "./providers";
+import { FloatingWallet } from "./components/FloatingWallet";
 import "./globals.css";
 
 const geistMono = Geist_Mono({
@@ -51,7 +53,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={geistMono.variable}>
       <body className="min-h-screen flex flex-col antialiased">
-        <main className="flex-1">{children}</main>
+        <Providers>
+          <main className="flex-1">{children}</main>
+          <FloatingWallet />
+        </Providers>
         <Analytics />
       </body>
     </html>
